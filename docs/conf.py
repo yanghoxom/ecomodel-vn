@@ -1,5 +1,5 @@
 #
-# pyflwdir documentation build configuration file, created by
+# ecomodel_vn documentation build configuration file, created by
 # sphinx-quickstart on Wed Jul 24 15:19:00 2019.
 #
 # This file is execfile()d with the current directory set to its
@@ -18,7 +18,7 @@ import sys
 from pathlib import Path
 from shutil import copytree
 
-import pyflwdir
+import ecomodel_vn
 
 here = Path(__file__).resolve().parent
 sys.path.insert(0, str(here.parent))
@@ -26,12 +26,12 @@ sys.path.insert(0, str(here.parent))
 
 # -- Project information -----------------------------------------------------
 
-project = "PyFlwDir"
-copyright = "Deltares"
-author = "Dirk Eilander"
+project = "EcoModel-VN"
+copyright = "LEMBEM LAB; upstream Deltares contributors"
+author = "LEMBEM LAB"
 
 # The short version which is displayed
-version = pyflwdir.__version__.split("dev")[0]
+version = ecomodel_vn.__version__.split("dev")[0]
 
 # # -- Copy notebooks to include in docs -------
 SKIP_DOC_EXAMPLES = bool(os.environ.get("SKIP_DOC_EXAMPLES", ""))
@@ -107,7 +107,7 @@ todo_include_todos = False
 # a list of builtin themes.
 #
 html_theme = "pydata_sphinx_theme"
-html_logo = "_static/pyflwdir_icon.png"
+html_logo = None
 autodoc_member_order = "bysource"  # overwrite default alphabetical sort
 autoclass_content = "both"
 
@@ -116,35 +116,22 @@ autoclass_content = "both"
 # documentation.
 #
 html_static_path = ["_static"]
-html_css_files = ["theme-deltares.css"]
+html_css_files = ["theme-lembem.css"]
 html_theme_options = {
     "show_nav_level": 1,
     "navbar_align": "content",
-    "use_edit_page_button": True,
-    "icon_links": [
-        {
-            "name": "GitHub",
-            "url": "https://github.com/Deltares/pyflwdir",  # required
-            "icon": "https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg",
-            "type": "url",
-        },
-        {
-            "name": "Deltares",
-            "url": "https://www.deltares.nl/en/",
-            "icon": "_static/deltares-blue.svg",
-            "type": "local",
-        },
-    ],
+    "use_edit_page_button": False,
+    "icon_links": [{"name": "GitHub (private)", "url": "https://github.com/yanghoxom/ecomodel-vn", "icon": "https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg", "type": "url"}],
     "logo": {
-        "text": "PyFlwDir",
+        "text": "EcoModel-VN",
     },
     "navbar_end": ["navbar-icon-links"],  # remove dark mode switch
 }
 
 html_context = {
     "github_url": "https://github.com",  # or your GitHub Enterprise interprise
-    "github_user": "Deltares",
-    "github_repo": "pyflwdir",
+    "github_user": "yanghoxom",
+    "github_repo": "ecomodel-vn",
     "github_version": "main",
     "doc_path": "docs",
     "default_mode": "light",
@@ -169,7 +156,7 @@ html_context = {
 # -- Options for HTMLHelp output ------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = "pyflwdir_doc"
+htmlhelp_basename = "ecomodel_vn_doc"
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -195,8 +182,8 @@ latex_elements = {
 latex_documents = [
     (
         master_doc,
-        "pyflwdir.tex",
-        "pyflwdir Documentation",
+        "ecomodel_vn.tex",
+        "ecomodel_vn Documentation",
         [author],
         "manual",
     ),
@@ -207,7 +194,7 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [(master_doc, "pyflwdir", "pyflwdir Documentation", [author], 1)]
+man_pages = [(master_doc, "ecomodel_vn", "ecomodel_vn Documentation", [author], 1)]
 
 
 # -- Options for Texinfo output -------------------------------------------
@@ -218,10 +205,10 @@ man_pages = [(master_doc, "pyflwdir", "pyflwdir Documentation", [author], 1)]
 texinfo_documents = [
     (
         master_doc,
-        "pyflwdir",
-        "pyflwdir Documentation",
+        "ecomodel_vn",
+        "ecomodel_vn Documentation",
         author,
-        "pyflwdir",
+        "ecomodel_vn",
         "Fast methods to work with hydro- and topography data in pure Python.",
         "Miscellaneous",
     ),
@@ -237,15 +224,4 @@ intersphinx_mapping = {
 }
 
 # This is processed by Jinja2 and inserted before each notebook
-nbsphinx_prolog = r"""
-{% set docname = env.doc2path(env.docname, base=None).name %}
-
-.. TIP::
-
-    .. raw:: html
-
-        <div>
-            For an interactive online version click here:
-            <a href="https://mybinder.org/v2/gh/Deltares/pyflwdir/main?urlpath=lab/tree/examples/{{ docname|e }}" target="_blank" rel="noopener noreferrer"><img alt="Binder badge" src="https://mybinder.org/badge_logo.svg"></a>
-        </div>
-"""
+nbsphinx_prolog = ""

@@ -1,20 +1,21 @@
 Installation
 ============
 
-Install from conda
-------------------
+Install for local development (private source)
+----------------------------------------------
+
+Clone the private project using an authorized GitHub account. EcoModel-VN has
+not been published on conda-forge or PyPI.
+
+
+Install editable package
+------------------------
 
 .. code-block:: console
 
-    $ conda install pyflwdir -c conda-forge
+    $ python -m pip install -e .
 
-
-Install from pip
-----------------
-
-.. code-block:: console
-
-    $ pip install pyflwdir
+The Python import namespace is ecomodel_vn.
 
 
 Install full environment for quickstart and examples
