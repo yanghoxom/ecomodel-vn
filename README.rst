@@ -1,86 +1,129 @@
-#############################################################################
-PyFlwDir: Fast methods to work with hydro- and topography data in pure Python
-#############################################################################
+===========
+EcoModel-VN
+===========
 
-.. image:: https://codecov.io/gh/Deltares/PyFlwDir/branch/main/graph/badge.svg?token=N4VMHJJAV3
-    :target: https://codecov.io/gh/Deltares/PyFlwDir
+Lightweight Environmental & Hydrological Modeling for Vietnam
+-------------------------------------------------------------
 
-.. image:: https://img.shields.io/badge/docs-latest-brightgreen.svg
-    :target: https://deltares.github.io/pyflwdir/latest
-    :alt: Latest docs
+**Status:** In Development — Private Repository
 
-.. image:: https://mybinder.org/badge_logo.svg
-    :alt: Binder
-    :target: https://mybinder.org/v2/gh/Deltares/pyflwdir/main?urlpath=lab/tree/examples
+**Research pillar:** Engineering Models & Open AI
 
-.. image:: https://badge.fury.io/py/PyFlwDir.svg
-    :target: https://pypi.org/project/PyFlwDir/
-    :alt: Latest PyPI version
+**Organization:** LEMBEM LAB (Laboratory for Emerging Media, Bio-informatics and Engineering Models), Vietnam
 
-.. image:: https://anaconda.org/conda-forge/PyFlwDir/badges/version.svg
-    :target: https://anaconda.org/conda-forge/PyFlwDir
+**Contact:** contact@lembem.com
 
-.. image:: https://zenodo.org/badge/409871473.svg
-   :target: https://zenodo.org/badge/latestdoi/409871473
+Overview
+========
 
-.. image:: https://img.shields.io/github/license/Deltares/pyflwdir?style=flat
-    :alt: License
-    :target: https://github.com/Deltares/pyflwdir/blob/main/LICENSE
+**EcoModel-VN** is an early-stage scientific research initiative focused on
+lightweight computational tools for hydrological analysis, river-basin
+monitoring, water-quality research and flood-risk modeling in rural Vietnam.
 
+The goal is to make reproducible methods, transparent modeling assumptions
+and resource-efficient scientific workflows accessible to researchers,
+universities and local communities.
 
+**Current implementation:** This repository contains the original **PyFlwDir**
+codebase from Deltares, used as the hydrological foundation of EcoModel-VN.
+The code has **not yet** been refactored into a distinct EcoModel-VN Python
+package. Water-quality simulation and end-to-end flood forecasting are
+**planned research directions**, not already implemented capabilities.
 
-Intro
------
+Hydrological foundation
+=======================
 
-PyFlwDir contains a series of methods to work with gridded DEM and flow direction
-datasets, which are key to many workflows in many earth sciences.
-PyFlwDir supports several flow direction data conventions and can easily be extended to include more.
-The package contains some unique methods such as Iterative Hydrography Upscaling (IHU)
-method to upscale flow directions from high resolution data to coarser model resolution.
+The existing PyFlwDir source code provides methods for:
 
-PyFlwDir is in pure python and powered by `numba <https://numba.pydata.org/>`_ to keep it fast.
+* Flow directions from gridded Digital Elevation Models (DEMs)
+* Upstream accumulation and river-network tracing
+* Watershed and sub-basin delineation
+* Stream orders and hydrological network analysis
+* Height Above Nearest Drainage (HAND) terrain indices
+* Flow-direction upscaling and related GIS workflows
 
+These are useful terrain and hydrological-analysis building blocks, but
+they should not be misrepresented as validated operational flood forecasts
+or complete water-quality models.
 
-Featured methods
-----------------
+Upstream project image
+======================
 
-- flow directions from elevation data using a steepest gradient algorithm
-- strahler stream order
-- flow direction upscaling
-- (sub)basin delineation
-- pfafstetter subbasins delineation
-- classic stream order
-- height above nearest drainage (HAND)
-- geomorphic floodplain delineation
-- up- and downstream tracing and arithmetics
-- hydrologically adjusting elevation
-- upstream accumulation
-- vectorizing streams
-- many more!
+The existing illustration below is retained from **Deltares / PyFlwDir**
+as a reference to the technical foundation, not as an EcoModel-VN field result.
 
-.. image:: https://raw.githubusercontent.com/Deltares/pyflwdir/main/docs/_static/pyflwdir.png
-  :width: 100%
+.. image:: docs/_static/pyflwdir.png
+   :width: 100%
+   :alt: Original PyFlwDir flow direction and terrain analysis illustration
 
+Research roadmap
+================
 
-Installation
-------------
+**Phase 1 — Hydrological research baseline (current)**
 
-See `installation guide <https://deltares.github.io/pyflwdir/latest/installation.html>`_
+* Review and reproduce PyFlwDir's terrain-processing capabilities.
+* Develop example workflows for Vietnamese river basins and DEM datasets.
+* Establish reproducible tests and document input-data requirements.
 
-Quickstart
-----------
+**Phase 2 — Environmental and water-quality data**
 
-See `user guide <https://deltares.github.io/pyflwdir/latest/quickstart.html>`_
+* Investigate integration of water-quality observations and IoT sensors.
+* Develop input validation, provenance tracking and uncertainty reporting.
+* Evaluate suitable open scientific models for rural water monitoring.
 
+**Phase 3 — Flood-risk modeling**
 
-Reference API
--------------
+* Study runoff, drainage and rainfall data integration.
+* Evaluate lightweight flood-risk simulations and calibration strategies.
+* Compare model outputs with observations before real-world deployment.
 
-See `reference API <https://deltares.github.io/pyflwdir/latest/reference.html>`_
+**Phase 4 — Public-benefit research deliverables**
 
+* Prepare reusable examples, methodological notes and teaching resources.
+* Review opportunities to publish additional components and datasets.
 
-Development and Testing
------------------------
+These phases are planned research activities, not completed features.
 
-Welcome to the PyFlwDir project. All contributions, bug reports, bug fixes, documentation improvements, enhancements, and ideas are welcome.
-See `Contributing to PyFlwDir <https://deltares.github.io/pyflwdir/latest/contributing.html>`__ for how we work.
+Codebase and local development
+==============================
+
+The upstream project structure and package name are preserved:
+
+* **pyflwdir/** — current Python package, still imported as pyflwdir
+* **examples/** — computational notebooks
+* **tests/** — existing automated tests
+* **docs/** — technical documentation and original image assets
+* **pyproject.toml** — original Python build and tooling configuration
+* **LICENSE** — original MIT licence and copyright notice
+
+Requires **Python 3.11+**. For authorized collaborators, clone the private
+repository and install the existing Python package:
+
+.. code-block:: console
+
+   git clone https://github.com/yanghoxom/ecomodel-vn.git
+   cd ecomodel-vn
+   python -m venv .venv
+   # Activate the virtual environment for your OS
+   python -m pip install -e ".[test]"
+   python -m pytest tests -q
+
+For existing APIs, consult the upstream PyFlwDir documentation:
+https://deltares.github.io/pyflwdir/latest/
+
+Licensing and source attribution
+================================
+
+EcoModel-VN is currently **private** and under active research development.
+Private repository visibility does not override existing third-party licences.
+
+The foundational source was created by **Deltares**, with contributors
+including **Dirk Eilander** and **Willem van Verseveld**. The original
+MIT licence and Deltares copyright statement are preserved in LICENSE.
+Original image assets are retained in docs/_static/ for reference.
+
+Further EcoModel-VN-specific implementations, publications and datasets
+will be identified and licensed separately when available.
+
+LEMBEM LAB: https://lab.lembem.com
+Contact: contact@lembem.com
