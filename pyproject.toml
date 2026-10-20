@@ -3,8 +3,9 @@ requires = ["flit_core >=3.4,<4"]
 build-backend = "flit_core.buildapi"
 
 [project]
-name = "pyflwdir"
-authors = [{ name = "Dirk Eilander", email = "dirk.eilander@deltares.nl" }]
+name = "ecomodel-vn"
+authors = [{ name = "Deltares and PyFlwDir contributors" }]
+maintainers = [{ name = "LEMBEM LAB", email = "contact@lembem.com" }]
 readme = "README.rst"
 license = { file = "LICENSE" }
 classifiers = ["License :: OSI Approved :: MIT License"]
@@ -13,8 +14,8 @@ dependencies = ["affine", "numba>=0.54,<1.0", "numpy", "scipy"]
 requires-python = ">=3.11"
 
 [project.urls]
-Home = "https://github.com/Deltares/pyflwdir"
-Documentation = "https://deltares.github.io/pyflwdir"
+Home = "https://github.com/yanghoxom/ecomodel-vn"
+Documentation = "https://lab.lembem.com"
 
 [project.optional-dependencies]
 test = ["black[jupyter]", "mypy", "pre-commit", "pytest>=2.7.3", "pytest-cov"]
@@ -29,14 +30,14 @@ examples = [
     "pandoc",
 ]
 
-full = ["pyflwdir[test, doc, examples]"]
+full = ["ecomodel-vn[test, doc, examples]"]
 
 [tool.black]
 line-length = 88
 target-version = ['py311']
 
 [tool.flit.sdist]
-include = ["pyflwdir"]
+include = ["ecomodel_vn"]
 exclude = ["docs", "notebooks", "envs", "tests", "binder", ".github"]
 
 [tool.pytest.ini_options]
@@ -48,7 +49,7 @@ markers = [
 ]
 
 [tool.mypy]
-files = ["pyflwdir"]
+files = ["ecomodel_vn"]
 python_version = "3.11"
 # numba-jitted code is highly dynamic; check signatures, not function bodies
 check_untyped_defs = false
@@ -86,7 +87,7 @@ python = "3.14.*"
 pandoc = "*"
 
 [tool.pixi.pypi-dependencies]
-pyflwdir = { path = ".", editable = true }
+ecomodel-vn = { path = ".", editable = true }
 
 [tool.pixi.pypi-options]
 no-build = ["pyproj", "rasterio"]
@@ -145,13 +146,13 @@ docs-html-clean = { depends-on = ["docs-clean", "docs-html"] }
 test = { cmd = ["pytest", "tests", "-v", "--cov-report=term-missing"] }
 test-unit = { cmd = ["pytest", "tests", "-v", "-m", "unit"] }
 test-integration = { cmd = ["pytest", "tests", "-v", "-m", "integration"] }
-test-cov-xml = { cmd = "python -m pytest --verbose --cov=pyflwdir --cov-report xml", env = { NUMBA_DISABLE_JIT = "1" } }
-test-cov = { cmd = "python -m pytest --verbose --cov=pyflwdir --cov-report term-missing", env = { NUMBA_DISABLE_JIT = "1" } }
+test-cov-xml = { cmd = "python -m pytest --verbose --cov=ecomodel_vn --cov-report xml", env = { NUMBA_DISABLE_JIT = "1" } }
+test-cov = { cmd = "python -m pytest --verbose --cov=ecomodel_vn --cov-report term-missing", env = { NUMBA_DISABLE_JIT = "1" } }
 
 
 # version
 version = { cmd = [
     "python",
     "-c",
-    "from pyflwdir import __version__ as v; print('dev' if 'dev' in v else 'v'+v)",
+    "from ecomodel_vn import __version__ as v; print('dev' if 'dev' in v else 'v'+v)",
 ] }

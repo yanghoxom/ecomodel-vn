@@ -1,4 +1,4 @@
-name: pyflwdir
+name: ecomodel_vn
 
 channels:
 - conda-forge
