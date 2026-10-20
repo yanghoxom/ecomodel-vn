@@ -57,7 +57,7 @@ def quickplot(
     ax.set_aspect("equal")
     ax.set_title(title, fontsize="large")
     ax.text(
-        0.01, 0.01, "created with pyflwdir", transform=ax.transAxes, fontsize="large"
+        0.01, 0.01, "created with ecomodel_vn", transform=ax.transAxes, fontsize="large"
     )
     if filename:
         plt.savefig(f"{filename}.png")
