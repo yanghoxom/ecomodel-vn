@@ -68,7 +68,7 @@ def from_dem(
 
     Based on: Wang, L., & Liu, H. (2006). https://doi.org/10.1080/13658810500433453
 
-    NOTE: to retrieve the depression filled dem, use the :py:func:`pyflwdir.dem.fill_depressions` method.
+    NOTE: to retrieve the depression filled dem, use the :py:func:`ecomodel_vn.dem.fill_depressions` method.
 
     Parameters
     ----------

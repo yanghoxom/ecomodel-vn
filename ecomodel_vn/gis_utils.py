@@ -431,7 +431,7 @@ def coords_to_idxs(
     return rows * ncol + cols
 
 
-# TODO: rename to transform_to_coords & correct upstream use in pyflwdir and hydromt
+# TODO: rename to transform_to_coords & correct upstream use in ecomodel_vn and hydromt
 def affine_to_coords(
     affine: Affine, shape: tuple[int, int]
 ) -> tuple[np.ndarray, np.ndarray]:
