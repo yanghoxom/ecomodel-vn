@@ -1,9 +1,9 @@
-"""Tests for the pyflwdir.dem module."""
+"""Tests for the ecomodel_vn.dem module."""
 
 import numpy as np
 import pytest
 
-from pyflwdir import dem, subgrid
+from ecomodel_vn import dem, subgrid
 
 
 @pytest.mark.unit

@@ -1,9 +1,9 @@
-"""Tests for the pyflwdir.core.py submodule."""
+"""Tests for the ecomodel_vn.core.py submodule."""
 
 import numpy as np
 import pytest
 
-from pyflwdir import basins, core, streams
+from ecomodel_vn import basins, core, streams
 
 
 @pytest.mark.integration

@@ -3,8 +3,8 @@ import os
 import numpy as np
 import pytest
 
-from pyflwdir import core, core_d8, core_nextxy
-from pyflwdir.pyflwdir import FlwdirRaster, from_dem
+from ecomodel_vn import core, core_d8, core_nextxy
+from ecomodel_vn.ecomodel_vn import FlwdirRaster, from_dem
 
 
 @pytest.fixture(scope="session")
