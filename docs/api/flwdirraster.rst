@@ -1,4 +1,4 @@
-.. currentmodule:: pyflwdir
+.. currentmodule:: ecomodel_vn
 
 FlwdirRaster
 ------------
