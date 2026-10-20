@@ -1,0 +1,480 @@
+"""Methods to derive maps of basin/stream characteristics.
+
+These methods require the basin indices to be ordered from down- to upstream.
+"""
+
+import math
+
+import numpy as np
+from numba import njit
+
+# import local libraries
+from . import core, gis_utils
+
+__all__ = []
+
+
+# general methods
+@njit(cache=True)
+def accuflux(
+    idxs_ds: np.ndarray, seq: np.ndarray, data: np.ndarray, nodata: float
+) -> np.ndarray:
+    """Returns maps of accumulate upstream <data>
+
+    Parameters
+    ----------
+    idxs_ds : 1D-array of intp
+        index of next downstream cell
+    seq : 1D array of int
+        ordered cell indices from down- to upstream
+    data : 1D array
+        local values to be accumulated
+    nodata : float, integer
+        nodata value
+
+    Returns
+    -------
+    1D array of data.dtype
+        accumulated upstream data
+    """
+    # intialize output with correct dtype
+    accu = data.copy()
+    for idx0 in seq[::-1]:  # up- to downstream
+        idx_ds = idxs_ds[idx0]
+        if idx0 != idx_ds and accu[idx_ds] != nodata and accu[idx0] != nodata:
+            accu[idx_ds] += accu[idx0]
+    return accu
+
+
+@njit(cache=True)
+def accuflux_ds(
+    idxs_ds: np.ndarray, seq: np.ndarray, data: np.ndarray, nodata: float
+) -> np.ndarray:
+    """Returns maps of accumulate downstream <data>
+
+    Parameters
+    ----------
+    idxs_ds : 1D-array of intp
+        index of next downstream cell
+    seq : 1D array of int
+        ordered cell indices from down- to upstream
+    data : 1D array
+        local values to be accumulated
+    nodata : float, integer
+        nodata value
+
+    Returns
+    -------
+    1D array of data.dtype
+        accumulated upstream data
+    """
+    # intialize output with correct dtype
+    accu = data.copy()
+    for idx0 in seq:  # down- to upstream
+        idx_ds = idxs_ds[idx0]
+        if idx0 != idx_ds and accu[idx_ds] != nodata and accu[idx0] != nodata:
+            accu[idx0] += accu[idx_ds]
+    return accu
+
+
+@njit(cache=True)
+def upstream_area(
+    idxs_ds: np.ndarray,
+    seq: np.ndarray,
+    ncol: int,
+    latlon: bool = False,
+    transform: np.ndarray = gis_utils._IDENTITY,
+    area_factor: float = 1,
+    nodata: float = -9999.0,
+    dtype: type = np.float64,
+) -> np.ndarray:
+    """Return accumulated upstream area, assigning `nodata` to invalid cells.
+
+    Cell areas are calculated from the affine transform. If `latlon` is True, the
+    resolution is interpreted in degrees and converted to square metres.
+
+    NOTE: does not require area grid in memory
+
+    Parameters
+    ----------
+    idxs_ds : 1D-array of intp
+        index of next downstream cell
+    seq : 1D array of int
+        ordered cell indices from down- to upstream
+    ncol : int
+        number of columns in raster
+    latlon : bool, optional
+        True if WGS84 coordinates, by default False
+    transform : np.ndarray
+        Affine transform coefficients for 2D linear mapping, by default gis_utils._IDENTITY
+    area_factor : float, optional
+        multiplication factor for unit conversion, by default 1
+    nodata : float, optional
+        nodata value, by default -9999.0
+    dtype : numpy.dtype, optional
+        data output type, by default numpy.float64
+
+    Returns
+    -------
+    1D array of <dtype>
+        accumulated upstream area
+    """
+    # intialize uparea with correct dtype
+    uparea: np.ndarray = np.full(idxs_ds.size, nodata, dtype=dtype)
+    # local area
+    xres, yres, north = transform[0], transform[4], transform[5]
+    if latlon:
+        for idx in seq:
+            lat = north + (idx // ncol + 0.5) * yres
+            uparea[idx] = gis_utils.cellarea(lat, xres, yres) / area_factor
+    else:
+        uparea[seq] = abs(xres * yres) / area_factor
+    # accumulate upstream area
+    for idx0 in seq[::-1]:  # up- to downstream
+        idx_ds = idxs_ds[idx0]
+        if idx0 != idx_ds:
+            uparea[idx_ds] += uparea[idx0]
+    return uparea
+
+
+@njit(cache=True)
+def streams(
+    idxs_ds: np.ndarray,
+    seq: np.ndarray,
+    mask: np.ndarray | None = None,
+    max_len: int = 0,
+    mv: int = core._mv,
+) -> list:
+    """Returns list of linear indices per stream of equal stream order.
+
+    Parameters
+    ----------
+    idxs_ds : 1D-array of intp
+        index of next downstream cell
+    seq : 1D array of int
+        ordered cell indices from down- to upstream
+    mask : 1D-array of bool, optional
+        Mask of stream cells
+    max_len: int, optional
+        Maximum length of a single stream segment measured in cells
+        Longer streams segments are divided into smaller segments of equal length
+        as close as possible to max_len.
+
+    Returns
+    -------
+    streams : list of 1D-arrays of intp
+        linear indices of streams
+    """
+    nup = core.upstream_count(idxs_ds=idxs_ds, mask=mask, mv=mv)
+    # get list of indices arrays of segments
+    streams = []
+    done = np.zeros(idxs_ds.size, dtype=np.bool_)
+    for idx0 in seq[::-1]:  # up- to downstream
+        if done[idx0] or (mask is not None and ~mask[idx0]):
+            continue
+        idxs = [idx0]  # initiate with correct dtype
+        while True:
+            done[idx0] = True
+            idx_ds = idxs_ds[idx0]
+            pit = idx_ds == idx0
+            if not pit:
+                idxs.append(idx_ds)
+            if nup[idx_ds] > 1 or pit:
+                l = len(idxs)
+                if l > max_len > 0:
+                    n, k = l, 1
+                    if (l / max_len) > 1.5:
+                        k = round(l / max_len)
+                        n = round(l / k)
+                    for i in range(k):  # split into k segments with overlapping point
+                        if i + 1 == k:
+                            streams.append(np.array(idxs[i * n :], dtype=idxs_ds.dtype))
+                        else:
+                            _idxs = idxs[i * n : n * (i + 1) + 1]
+                            streams.append(np.array(_idxs, dtype=idxs_ds.dtype))
+                else:
+                    streams.append(np.array(idxs, dtype=idxs_ds.dtype))
+                # CHANGED in v0.5.2: add zero length LineString at pits
+                if pit:
+                    streams.append(np.array([idx_ds, idx_ds], dtype=idxs_ds.dtype))
+                break
+            idx0 = idx_ds
+    return streams
+
+
+@njit(cache=True)
+def stream_order(
+    idxs_ds: np.ndarray,
+    seq: np.ndarray,
+    idxs_us_main: np.ndarray,
+    mask: np.ndarray | None = None,
+    mv: int = core._mv,
+) -> np.ndarray:
+    """Return the classic or Hack's bottom-up stream order.
+
+    The main stem, selected using upstream area, has order 1. Each tributary receives
+    an order one greater than the stream it joins.
+
+    Parameters
+    ----------
+    idxs_ds : 1D-array of intp
+        index of next downstream cell
+    seq : 1D array of int
+        ordered cell indices from down- to upstream
+    mask : 1D-array of bool, optional
+        True if stream cell
+
+    Returns
+    -------
+    1D array of uint8
+        stream order
+    """
+    nup = core.upstream_count(idxs_ds=idxs_ds, mask=mask, mv=mv)
+    strord = np.full(idxs_ds.size, 0, dtype=np.uint8)
+    for idx0 in seq:  # down- to upstream
+        if mask is not None and not mask[idx0]:  # invalid cell
+            continue
+        idx_ds = idxs_ds[idx0]
+        if idx_ds == idx0:  # pit
+            strord[idx0] = 1
+        elif nup[idx_ds] > 1 and idxs_us_main[idx_ds] != idx0:
+            strord[idx0] = strord[idx_ds] + 1
+        else:
+            strord[idx0] = strord[idx_ds]
+    return strord
+
+
+@njit(cache=True)
+def strahler_order(
+    idxs_ds: np.ndarray, seq: np.ndarray, mask: np.ndarray | None = None
+) -> np.ndarray:
+    """Return the Strahler top-down stream order.
+
+    First-order streams are the most upstream tributaries, or headwater cells. When two
+    streams of the same order merge, the downstream stream has an order one higher. When
+    streams of different orders merge, the downstream stream takes the higher order.
+
+    Parameters
+    ----------
+    idxs_ds : 1D-array of intp
+        index of next downstream cell
+    seq : 1D array of int
+        ordered cell indices from down- to upstream
+    mask : 1D-array of bool, optional
+        True if stream cell
+
+    Returns
+    -------
+    1D array of uint8
+        stream order
+    """
+    strord = np.full(idxs_ds.size, 0, dtype=np.uint8)
+    strmax = np.full(idxs_ds.size, 0, dtype=np.uint8)
+    for idx0 in seq[::-1]:  # up- to downstream
+        if mask is not None and not mask[idx0]:  # invalid
+            continue
+        if strord[idx0] == 0:  # headwater cell
+            strord[idx0] = 1
+        idx_ds = idxs_ds[idx0]
+        if idx_ds == idx0:
+            continue
+        sto, sto_ds = strord[idx0], strord[idx_ds]
+        sto_up = strmax[idx_ds]  # max order of other upstream tributaries
+        if sto_ds < sto:
+            strord[idx_ds] = sto
+        # increment order if same order joins
+        elif sto == sto_ds and sto_up == sto:
+            strord[idx_ds] += 1
+        if sto_up < sto:
+            strmax[idx_ds] = sto
+    return strord
+
+
+def stream_distance(
+    idxs_ds: np.ndarray,
+    seq: np.ndarray,
+    ncol: int,
+    mask: np.ndarray | None = None,
+    real_length: bool = True,
+    latlon: bool = False,
+    transform: np.ndarray = gis_utils._IDENTITY,
+) -> np.ndarray:
+    """Returns distance to outlet or next downstream True cell in mask
+
+    Parameters
+    ----------
+    idxs_ds : 1D-array of intp
+        index of next downstream cell
+    seq : 1D array of int
+        ordered cell indices from down- to upstream
+    ncol : int
+        number of columns in raster
+    mask : 1D-array of bool, optional
+        True if stream cell
+    latlon : bool, optional
+        True if WGS84 coordinates, by default False
+    transform : np.ndarray
+        Affine transform coefficients for 2D linear mapping, by default gis_utils._IDENTITY
+
+    Returns
+    -------
+    1D array of float
+        distance to outlet or next downstream True cell
+    """
+    if real_length:
+        steps = _stream_distance_steps(idxs_ds.size, ncol, latlon, transform)
+        return _stream_distance_real(idxs_ds, seq, ncol, mask, latlon, transform, steps)
+    return _stream_distance_cell(idxs_ds, seq, mask)
+
+
+@njit(cache=True)
+def _stream_distance_steps(
+    size: int,
+    ncol: int,
+    latlon: bool = False,
+    transform: np.ndarray = gis_utils._IDENTITY,
+) -> np.ndarray:
+    """Return the step length in map units to the 8 neighboring cells per row.
+
+    The step length between neighboring cells only depends on the row (through
+    the latitude for geographic coordinates) and on the step direction, so it
+    is precomputed once per row instead of once per cell. The five columns are
+    [horizontal, down, down-diagonal, up, up-diagonal].
+    """
+    nrow = (size + ncol - 1) // ncol
+    xres, yres, north = transform[0], transform[4], transform[5]
+    if latlon:
+        steps = np.empty((nrow, 5), dtype=np.float64)
+        for r in range(nrow):
+            # latitudes as used by gis_utils.distance for each row offset
+            lat_h = north + r * yres
+            lat_d = north + (r + 0.5) * yres
+            lat_u = north + (r - 0.5) * yres
+            dx_h = gis_utils.degree_metres_x(lat_h) * xres
+            dy_d = gis_utils.degree_metres_y(lat_d) * yres
+            dx_d = gis_utils.degree_metres_x(lat_d) * xres
+            dy_u = gis_utils.degree_metres_y(lat_u) * yres
+            dx_u = gis_utils.degree_metres_x(lat_u) * xres
+            steps[r, 0] = abs(dx_h)
+            steps[r, 1] = abs(dy_d)
+            steps[r, 2] = math.hypot(dy_d, dx_d)
+            steps[r, 3] = abs(dy_u)
+            steps[r, 4] = math.hypot(dy_u, dx_u)
+    else:
+        steps = np.empty((1, 5), dtype=np.float64)
+        # same (swapped) xres/yres use as gis_utils.distance to keep results identical
+        steps[0, 0] = abs(yres)
+        steps[0, 1] = abs(xres)
+        steps[0, 2] = math.hypot(xres, yres)
+        steps[0, 3] = abs(xres)
+        steps[0, 4] = math.hypot(xres, yres)
+    return steps
+
+
+@njit(cache=True)
+def _stream_distance_real(
+    idxs_ds: np.ndarray,
+    seq: np.ndarray,
+    ncol: int,
+    mask: np.ndarray | None,
+    latlon: bool,
+    transform: np.ndarray,
+    steps: np.ndarray,
+) -> np.ndarray:
+    dist = np.full(idxs_ds.size, -9999.0, dtype=np.float32)
+    dist[seq] = 0
+    for idx0 in seq:  # down- to upstream
+        idx_ds = idxs_ds[idx0]
+        # sum distances; skip if at pit or mask is True
+        if idx0 == idx_ds or (mask is not None and mask[idx0]):
+            continue
+        # neighbor cells: use the step length precomputed per row; for other
+        # (non-neighbor) jumps, e.g. nextxy flow directions, fall back to the
+        # generic distance function
+        r0 = np.intp(idx0) // ncol
+        dr = np.intp(idx_ds) // ncol - r0
+        dc = np.intp(idx_ds) % ncol - np.intp(idx0) % ncol
+        r = r0 if latlon else 0
+        if dr == 0 and (dc == 1 or dc == -1):
+            d = steps[r, 0]
+        elif dr == 1 and dc == 0:
+            d = steps[r, 1]
+        elif dr == 1 and (dc == 1 or dc == -1):
+            d = steps[r, 2]
+        elif dr == -1 and dc == 0:
+            d = steps[r, 3]
+        elif dr == -1 and (dc == 1 or dc == -1):
+            d = steps[r, 4]
+        else:
+            d = gis_utils.distance(idx0, idx_ds, ncol, latlon, transform)
+        dist[idx0] = dist[idx_ds] + d
+    return dist
+
+
+@njit(cache=True)
+def _stream_distance_cell(
+    idxs_ds: np.ndarray, seq: np.ndarray, mask: np.ndarray | None = None
+) -> np.ndarray:
+    dist = np.full(idxs_ds.size, -9999, dtype=np.int32)
+    dist[seq] = 0
+    for idx0 in seq:  # down- to upstream
+        idx_ds = idxs_ds[idx0]
+        # sum distances; skip if at pit or mask is True
+        if idx0 == idx_ds or (mask is not None and mask[idx0]):
+            continue
+        dist[idx0] = dist[idx_ds] + 1
+    return dist
+
+
+@njit(cache=True)
+def smooth_rivlen(
+    idxs_ds: np.ndarray,
+    idxs_us_main: np.ndarray,
+    rivlen: np.ndarray,
+    min_rivlen: float,
+    max_window: int = 10,
+    nodata: float = -9999.0,
+    mv: int = core._mv,
+) -> np.ndarray:
+    """Return smoothed river length, by taking the window average of river length.
+    The window size is increased until the average exceeds the `min_rivlen` threshold
+    or the max_window size is reached.
+
+    Parameters
+    ----------
+    rivlen : 1D array
+        River length values.
+    min_rivlen : float
+        Minimum river length.
+    max_window : int
+        maximum window size
+
+    Returns
+    -------
+    1D array of float
+        River length values.
+    """
+    rivlen_out = rivlen.copy()
+    n = max_window // 2
+    for idx0 in range(rivlen.size):
+        len0 = rivlen_out[idx0]
+        if len0 != nodata and len0 < min_rivlen:
+            len_avg1 = len0
+            idxs = core._window(idx0, n, idxs_ds, idxs_us_main, mv=mv)
+            # smooth over increasing window until min river length is reached
+            for i in range(1, n):
+                idxs0 = idxs[n - i : n + i + 1]
+                idxs0 = idxs0[idxs0 != mv]
+                idxs0 = idxs0[rivlen_out[idxs0] != nodata]
+                len_avg0 = np.mean(rivlen_out[idxs0])
+                if len_avg0 > len_avg1:
+                    idxs1 = idxs0
+                    len_avg1 = len_avg0
+                # break at smallest window if average > min_rivlen
+                if len_avg1 > min_rivlen:
+                    break
+            # replace lengths in window with average
+            if len_avg1 > len0:
+                rivlen_out[idxs1] = len_avg1
+
+    return rivlen_out
