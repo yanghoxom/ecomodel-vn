@@ -1,5 +1,8 @@
-Authors
--------
+EcoModel-VN
+===========
 
-* Dirk Eilander
-* Willem van Verseveld
+Project lead: LEMBEM LAB (Laboratory for Emerging Media, Bio-informatics and Engineering Models)
+
+Hydrological foundation originally developed at Deltares.
+Original contributors include Dirk Eilander and Willem van Verseveld.
+Copyright notices are preserved in LICENSE.

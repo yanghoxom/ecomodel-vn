@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from pyflwdir import core, streams, subgrid
+from ecomodel_vn import core, streams, subgrid
 
 
 def _subgridch_body(method, cellsize, test_data, flwdir):

@@ -4,4 +4,4 @@
   :maxdepth: 2
   :hidden:
 
-  Contributing to PyFlwDir <contributing>
+  Contributing to EcoModel-VN <contributing>

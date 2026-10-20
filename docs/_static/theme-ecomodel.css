@@ -2,13 +2,13 @@
 
 html[data-theme="light"] {
     /* NOTE: added after pydata v0.9 */
-    --pst-color-primary: #080c80 !important;
+    --pst-color-primary: #126A87 !important;
 
     /* hyperlinks */
-    --pst-color-link: rgb(13, 56, 224);
+    --pst-color-link: rgb(18,106,135);
 
     /* panels */
-    --pst-color-preformatted-border: #080c80 !important;
+    --pst-color-preformatted-border: #126A87 !important;
     --pst-color-panel-background: #f0f0f075;
 
     /* navbar */
@@ -20,13 +20,13 @@ html[data-theme="light"] {
 
     /* sphinx design */
     /* NOTE: does not work since v0.9 */
-    --sd-color-card-border-hover: #080c80;
-    --sd-color-tabs-label-active: #080c80;
-    --sd-color-tabs-label-hover: #080c80;
-    --sd-color-tabs-underline-active: #080c80;
+    --sd-color-card-border-hover: #126A87;
+    --sd-color-tabs-label-active: #126A87;
+    --sd-color-tabs-label-hover: #126A87;
+    --sd-color-tabs-underline-active: #126A87;
 }
 
-/* enlarge deltares & github icon size; only works with local/url svg files; not with fa icons */
+/* adjust project icon size; only works with local/url svg files; not with fa icons */
 img.icon-link-image {
     height: 2.5em !important;
 }

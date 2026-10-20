@@ -1,10 +1,10 @@
-"""Tests for the pyflwdir.core_xx.py and core_conversion submodules."""
+"""Tests for the ecomodel_vn.core_xx.py and core_conversion submodules."""
 
 import numpy as np
 import pytest
 
-from pyflwdir import core_d8, core_ldd, core_nextxy
-from pyflwdir.core_conversion import d8_to_ldd, ldd_to_d8
+from ecomodel_vn import core_d8, core_ldd, core_nextxy
+from ecomodel_vn.core_conversion import d8_to_ldd, ldd_to_d8
 
 
 @pytest.mark.unit

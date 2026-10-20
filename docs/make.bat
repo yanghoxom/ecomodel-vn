@@ -9,7 +9,7 @@ if "%SPHINXBUILD%" == "" (
 )
 set SOURCEDIR=.
 set BUILDDIR=_build
-set SPHINXPROJ=pyflwdir
+set SPHINXPROJ=ecomodel_vn
 
 if "%1" == "" goto help
 

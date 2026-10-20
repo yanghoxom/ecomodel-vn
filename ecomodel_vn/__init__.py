@@ -1,7 +1,7 @@
-"""Fast methods to work with hydro- and topography data in pure Python."""
+"""EcoModel-VN: lightweight hydrological and terrain-analysis research foundation."""
 
 # version number without 'v' at start
-__version__ = "0.5.13.dev0"
+__version__ = "0.1.0.dev0"
 
 # submodules
 from . import gis_utils, regions
@@ -11,7 +11,7 @@ from .core_conversion import d8_to_ldd, ldd_to_d8
 from .core_nextxy import read_nextxy
 from .dem import fill_depressions, slope
 from .flwdir import Flwdir, from_dataframe
-from .pyflwdir import FlwdirRaster, from_array, from_dem
+from .ecomodel_vn import FlwdirRaster, from_array, from_dem
 
 __all__ = [
     "Flwdir",

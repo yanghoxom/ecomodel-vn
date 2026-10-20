@@ -1,10 +1,10 @@
-"""Tests for the pyflwdir.gis_utils module."""
+"""Tests for the ecomodel_vn.gis_utils module."""
 
 import numpy as np
 import pytest
 from affine import Affine
 
-from pyflwdir import gis_utils as gis
+from ecomodel_vn import gis_utils as gis
 
 # glob total area
 glob_area = 4 * np.pi * gis._R**2

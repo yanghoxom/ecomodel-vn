@@ -21,8 +21,8 @@ Derive a FlwdirRaster object from this data:
 
 .. code-block:: python
 
-    import pyflwdir
-    flw = pyflwdir.from_dem(
+    import ecomodel_vn
+    flw = ecomodel_vn.from_dem(
         data=elevtn,
         nodata=src.nodata,
         transform=transform,

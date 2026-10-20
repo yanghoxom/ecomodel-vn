@@ -123,10 +123,10 @@ docs/_examples/
 .mypy_cache/
 
 # temp
-_pyflwdir
+_ecomodel_vn
 scripts
 
-pyflwdir*.yml
+ecomodel_vn*.yml
 
 # pixi environments
 .pixi

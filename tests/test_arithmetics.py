@@ -1,9 +1,9 @@
-"""Tests for the pyflwdir module."""
+"""Tests for the ecomodel_vn module."""
 
 import numpy as np
 import pytest
 
-from pyflwdir import arithmetics
+from ecomodel_vn import arithmetics
 
 
 @pytest.mark.unit

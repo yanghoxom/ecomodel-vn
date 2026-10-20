@@ -6,7 +6,7 @@ Install from conda
 
 .. code-block:: console
 
-    $ conda install pyflwdir -c conda-forge
+    $ conda install ecomodel_vn -c conda-forge
 
 
 Install from pip
@@ -14,7 +14,7 @@ Install from pip
 
 .. code-block:: console
 
-    $ pip install pyflwdir
+    $ pip install ecomodel_vn
 
 
 Install full environment for quickstart and examples

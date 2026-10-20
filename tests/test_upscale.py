@@ -1,13 +1,13 @@
-"""Tests for the pyflwdir.upscale module."""
+"""Tests for the ecomodel_vn.upscale module."""
 
 import numpy as np
 import pytest
 
 # local
-from pyflwdir import basins, core, streams, upscale
+from ecomodel_vn import basins, core, streams, upscale
 
 # # large test data
-# from pyflwdir import core_d8
+# from ecomodel_vn import core_d8
 # flwdir = np.fromfile(r"./data/d8.bin", dtype=np.uint8).reshape((678, 776))
 # tests = [("dmm", 1073), ("eam", 406), ("com", 138), ("com2", 54)]
 # idxs_ds, idxs_pit, _ = core_d8.from_array(flwdir)
