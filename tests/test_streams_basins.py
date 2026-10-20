@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-from pyflwdir import basins, core, gis_utils, regions, streams
+from ecomodel_vn import basins, core, gis_utils, regions, streams
 
 
 def _accuflux_body(test_data, flwdir):

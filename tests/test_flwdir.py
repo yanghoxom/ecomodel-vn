@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-from pyflwdir.flwdir import Flwdir, get_loc_idx
+from ecomodel_vn.flwdir import Flwdir, get_loc_idx
 
 
 @pytest.fixture

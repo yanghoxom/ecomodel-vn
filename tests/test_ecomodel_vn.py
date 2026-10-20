@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Tests for the pyflwdir module, specifically the wrapping of the methods which
+"""Tests for the ecomodel_vn module, specifically the wrapping of the methods which
 themselves are testes elsewhere"""
 
 import importlib
@@ -8,11 +8,11 @@ import numpy as np
 import pytest
 from affine import Affine
 
-import pyflwdir
-from pyflwdir import core, streams
-from pyflwdir.pyflwdir import FlwdirRaster, _get_idxs_dtype
+import ecomodel_vn
+from ecomodel_vn import core, streams
+from ecomodel_vn.ecomodel_vn import FlwdirRaster, _get_idxs_dtype
 
-pyflwdir_module = importlib.import_module("pyflwdir.pyflwdir")
+ecomodel_vn_module = importlib.import_module("ecomodel_vn.ecomodel_vn")
 
 
 @pytest.mark.integration
@@ -22,9 +22,9 @@ pyflwdir_module = importlib.import_module("pyflwdir.pyflwdir")
 def test_from_to_array(flwdir, ftype, request):
     flwdir = request.getfixturevalue(flwdir)
     mask = np.ones(flwdir.shape)
-    flw = pyflwdir.from_array(flwdir, mask=mask)
+    flw = ecomodel_vn.from_array(flwdir, mask=mask)
     assert flw.ftype == ftype
-    assert np.all(pyflwdir.from_array(flw.to_array()).idxs_ds == flw.idxs_ds)
+    assert np.all(ecomodel_vn.from_array(flw.to_array()).idxs_ds == flw.idxs_ds)
     with pytest.raises(ValueError, match="Invalid method"):
         flw.order_cells(method="???")
 
@@ -32,15 +32,15 @@ def test_from_to_array(flwdir, ftype, request):
 @pytest.mark.unit
 def test_from_array_errors(flw_real, flwdir_real):
     with pytest.raises(ValueError, match="could not be inferred."):
-        pyflwdir.from_array(np.arange(20), ftype="infer")
+        ecomodel_vn.from_array(np.arange(20), ftype="infer")
     with pytest.raises(ValueError, match='ftype "unknown" unknown'):
         flw_real.to_array("unknown")
     with pytest.raises(ValueError, match="should be 2 dimensional"):
-        pyflwdir.from_array(flwdir_real.ravel(), ftype="d8")
+        ecomodel_vn.from_array(flwdir_real.ravel(), ftype="d8")
     with pytest.raises(ValueError, match="is invalid."):
-        pyflwdir.from_array(flwdir_real, ftype="ldd", check_ftype=True)
+        ecomodel_vn.from_array(flwdir_real, ftype="ldd", check_ftype=True)
     with pytest.raises(ValueError, match="shape does not match"):
-        pyflwdir.from_array(flwdir_real, mask=np.ones((1, 1)))
+        ecomodel_vn.from_array(flwdir_real, mask=np.ones((1, 1)))
 
 
 @pytest.mark.unit
@@ -64,9 +64,9 @@ def test_from_array_nextxy_gets_dtype_from_cell_count(monkeypatch, nextxy_real):
         calls.append(n)
         return np.int32
 
-    monkeypatch.setattr(pyflwdir_module, "_get_idxs_dtype", get_idxs_dtype)
+    monkeypatch.setattr(ecomodel_vn_module, "_get_idxs_dtype", get_idxs_dtype)
 
-    pyflwdir.from_array(nextxy_real, ftype="nextxy")
+    ecomodel_vn.from_array(nextxy_real, ftype="nextxy")
 
     assert calls == [nextxy_real.shape[1] * nextxy_real.shape[2]]
 
@@ -75,21 +75,21 @@ def test_from_array_nextxy_gets_dtype_from_cell_count(monkeypatch, nextxy_real):
 def test_flwdirraster_errors(flwdir_real, flwdir_real_idxs):
     idxs_ds, d8 = flwdir_real_idxs[0], flwdir_real
     with pytest.raises(ValueError, match="Unknown flow direction type"):
-        pyflwdir.FlwdirRaster(idxs_ds, d8.shape, "unknown")
+        ecomodel_vn.FlwdirRaster(idxs_ds, d8.shape, "unknown")
     with pytest.raises(ValueError, match="Invalid transform."):
-        pyflwdir.FlwdirRaster(idxs_ds, d8.shape, "d8", transform=(0, 0))
+        ecomodel_vn.FlwdirRaster(idxs_ds, d8.shape, "d8", transform=(0, 0))
     with pytest.raises(ValueError, match="Invalid FlwdirRaster: size"):
-        pyflwdir.FlwdirRaster(idxs_ds[[0]], d8.shape, "d8")
+        ecomodel_vn.FlwdirRaster(idxs_ds[[0]], d8.shape, "d8")
     with pytest.raises(ValueError, match="Invalid FlwdirRaster: shape"):
-        pyflwdir.FlwdirRaster(idxs_ds, (1, 2), "d8")
+        ecomodel_vn.FlwdirRaster(idxs_ds, (1, 2), "d8")
     with pytest.raises(ValueError, match="Invalid FlwdirRaster: no pits found"):
-        pyflwdir.FlwdirRaster(np.array([1, 0], dtype=int), (2, 1), "d8")
+        ecomodel_vn.FlwdirRaster(np.array([1, 0], dtype=int), (2, 1), "d8")
 
 
 def _flwdirraster_attrs_body(test_data, d8):
     idxs_ds, idxs_pit, seq, rank, mv = test_data
     for cache in [True, False]:
-        flw = pyflwdir.FlwdirRaster(
+        flw = ecomodel_vn.FlwdirRaster(
             idxs_ds.copy(), d8.shape, "d8", idxs_pit=idxs_pit.copy(), cache=cache
         )
         assert flw._mv == mv
@@ -161,7 +161,7 @@ def test_add_pits(flw_real, flwdir_real):
 def test_save(tmpdir, flw_real):
     fn = tmpdir.join("flw_real.pkl")
     flw_real.dump(fn)
-    flw1 = pyflwdir.FlwdirRaster.load(fn)
+    flw1 = ecomodel_vn.FlwdirRaster.load(fn)
     for key in flw_real._dict:
         assert np.all(flw_real._dict[key] == flw1._dict[key])
 
@@ -346,7 +346,7 @@ def test_streams(flw_real, flwdir_real_rank):
     # check agains Flwdir
     # FIXME this fails, but only locally ??!#
     findex_ds = np.array([f["properties"]["idx_ds"] for f in feats])
-    flw1 = pyflwdir.Flwdir(pyflwdir.flwdir.get_loc_idx(findex, findex_ds))
+    flw1 = ecomodel_vn.Flwdir(ecomodel_vn.flwdir.get_loc_idx(findex, findex_ds))
     assert np.all(fstrord == flw1.stream_order().ravel())
     # vectorize
     feats = flw_real.vectorize()
@@ -393,7 +393,7 @@ def test_stream_order_mask_cache(flw_real, raster):
             cache=True,
         )
     else:
-        flw = pyflwdir.Flwdir(
+        flw = ecomodel_vn.Flwdir(
             flw_real.idxs_ds.copy(),
             idxs_pit=flw_real.idxs_pit.copy(),
             cache=True,
@@ -424,7 +424,7 @@ def test_add_pits_invalidates_cache(raster):
             idxs_ds.copy(), (1, 5), "d8", idxs_pit=idxs_pit.copy(), cache=True
         )
     else:
-        flw = pyflwdir.Flwdir(idxs_ds.copy(), idxs_pit=idxs_pit.copy(), cache=True)
+        flw = ecomodel_vn.Flwdir(idxs_ds.copy(), idxs_pit=idxs_pit.copy(), cache=True)
 
     old_rank = flw.rank.copy()
     old_strord = flw.stream_order().copy()
@@ -452,7 +452,7 @@ def test_add_pits_invalidates_cache(raster):
 @pytest.mark.unit
 def test_repair_loops_invalidates_topology_cache():
     idxs_ds = np.array([0, 2, 1], dtype=np.int32)
-    flw = pyflwdir.Flwdir(idxs_ds, idxs_pit=np.array([0], dtype=np.int32), cache=True)
+    flw = ecomodel_vn.Flwdir(idxs_ds, idxs_pit=np.array([0], dtype=np.int32), cache=True)
     old_rank = flw.rank.copy()
     old_strord = flw.stream_order().copy()
     old_idxs_us_main = flw.idxs_us_main.copy()
@@ -493,7 +493,7 @@ def test_set_transform_invalidates_geometry_cache():
 @pytest.mark.unit
 def test_main_upstream_custom_area_does_not_replace_default_cache():
     idxs_ds = np.array([0, 0, 1, 1, core._mv], dtype=np.int32)
-    flw = pyflwdir.Flwdir(idxs_ds, idxs_pit=np.array([0], dtype=np.int32), cache=True)
+    flw = ecomodel_vn.Flwdir(idxs_ds, idxs_pit=np.array([0], dtype=np.int32), cache=True)
     default_idxs_us_main = flw.idxs_us_main.copy()
     custom_uparea = np.array([1, 1, 1, 2, 0], dtype=np.float32)
 
@@ -516,7 +516,7 @@ def test_upscale(flw_real, nextxy_real):
     with pytest.raises(ValueError, match="Unknown method"):
         flw_real.upscale(5, method="unknown")
     with pytest.raises(ValueError, match="only works for D8 or LDD"):
-        pyflwdir.from_array(nextxy_real, ftype="nextxy").upscale(10)
+        ecomodel_vn.from_array(nextxy_real, ftype="nextxy").upscale(10)
     with pytest.raises(ValueError, match="size does not match"):
         flw_real.upscale(5, uparea=np.ones((2, 1)))
 
@@ -561,7 +561,7 @@ def test_dem1():
     i = 867565
     rng = np.random.default_rng(i)
     dem = rng.random((15, 10), dtype=np.float32)
-    flwdir = pyflwdir.from_dem(dem)
+    flwdir = ecomodel_vn.from_dem(dem)
     dem1 = flwdir.dem_adjust(dem)
     assert np.all((dem1 - flwdir.downstream(dem1)) >= 0), i
 
@@ -601,7 +601,7 @@ def test_from_array_nextxy_self_pointing_cell_is_pit():
     nextx = np.full((3, 3), 2, dtype=np.int32)
     nexty = np.full((3, 3), 2, dtype=np.int32)
     nextx[0, 0], nexty[0, 0] = -9, -9  # a coded pit next to it
-    flw = pyflwdir.from_array(np.stack([nextx, nexty]), ftype="nextxy")
+    flw = ecomodel_vn.from_array(np.stack([nextx, nexty]), ftype="nextxy")
     assert np.sort(flw.idxs_pit).tolist() == [0, 4]
     seq_default = flw.idxs_seq.copy()  # the lazy default, i.e. the walk
     flw.order_cells(method="walk")
@@ -619,7 +619,7 @@ def test_from_array_nextxy_self_pointing_cell_is_pit():
 @pytest.mark.integration
 @pytest.mark.parametrize("method", ["walk", "dfs", "topo", "sort"])
 def test_order_cells_methods(flwdir_real, flwdir_real_rank, method):
-    flw = pyflwdir.from_array(flwdir_real, ftype="d8")
+    flw = ecomodel_vn.from_array(flwdir_real, ftype="d8")
     flw.order_cells(method=method)
     seq = flw.idxs_seq
     rank = flwdir_real_rank[0].ravel()
