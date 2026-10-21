@@ -18,4 +18,4 @@ Run tests locally:
    python -m pip install -e ".[test]"
    python -m pytest tests -q
 
-Contact: contact@lembem.com
+Contact: contact@lab.lembem.com

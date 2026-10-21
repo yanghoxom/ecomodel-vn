@@ -80,4 +80,4 @@ Future EcoModel-VN modules and datasets may be licensed separately when released
 
 **Institute:** https://lab.lembem.com
 
-**Contact:** contact@lembem.com
+**Contact:** contact@lab.lembem.com

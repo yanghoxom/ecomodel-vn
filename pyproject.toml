@@ -4,7 +4,7 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "ecomodel-vn"
-authors = [{ name = "LEMBEM LAB", email = "contact@lembem.com" }]
+authors = [{ name = "LEMBEM LAB", email = "contact@lab.lembem.com" }]
 readme = "README.rst"
 license = { file = "LICENSE" }
 classifiers = ["License :: OSI Approved :: MIT License"]
